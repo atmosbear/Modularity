@@ -43,10 +43,19 @@ class ImageModule extends GenericModule  {
     constructor(
         public position: XY,
         public imgsrc: string,
-        public element: HTMLImageElement = document.createElement("img")
+        public element: HTMLImageElement = document.createElement("img"),
+        public size?: XY
     ) {
         super(position, element)
         this.element.src = imgsrc
+        this.size = {x: this.element.width, y: this.element.height}
+        console.log(this.element.width)
+    }
+
+    changeImageSize(newSize: XY) {
+        this.size = newSize
+        this.element.width = newSize.x
+        this.element.height = newSize.y
     }
 }
 
@@ -54,5 +63,6 @@ let modules: GenericModule[] = []
 let a = new ImageModule({ x: 100, y: 300 }, catimg)
 a.show()
 a.moveTo({ x: 30, y: 20 })
-a.moveTo({ x: -300, y: -100 })
+// a.moveTo({ x: -300, y: -100 })
 a.element.onclick = () => {a.moveTo({x: 3, y: 200})}
+a.changeImageSize({x: 40, y: 50})
