@@ -6,9 +6,11 @@ let catimg = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb
 
 type XY = { x: number, y: number }
 
-function styleModule(position: XY, element: HTMLElement) {
-    Object.assign(element.style, { top: position.y + "px", left: position.x + "px", position: "absolute" })
+
+function GlobalState(activeTool: string,) {
+    return { activeTool }
 }
+let gState = GlobalState("Image")
 
 class GenericModule {
     constructor(
@@ -17,8 +19,11 @@ class GenericModule {
         public onscreen: boolean = false,
         public childrenModules: GenericModule[] = []
     ) {
-        styleModule(position, element)
+        GenericModule.makeMovable(position, element)
         modules.push(this)
+    }
+    static makeMovable(position: XY, element: HTMLElement) {
+        Object.assign(element.style, { top: position.y + "px", left: position.x + "px", position: "absolute" })
     }
 
     moveTo(newPos: XY) {
@@ -39,7 +44,7 @@ class GenericModule {
     }
 }
 
-class ImageModule extends GenericModule  {
+class ImageModule extends GenericModule {
     constructor(
         public position: XY,
         public imgsrc: string,
@@ -48,7 +53,7 @@ class ImageModule extends GenericModule  {
     ) {
         super(position, element)
         this.element.src = imgsrc
-        this.size = {x: this.element.width, y: this.element.height}
+        this.size = { x: this.element.width, y: this.element.height }
         console.log(this.element.width)
     }
 
@@ -59,10 +64,59 @@ class ImageModule extends GenericModule  {
     }
 }
 
+let moduleChoices = ["Image Module", "Text Module", "Generic/Container Module"]
+let themeColors = { circleDialogColor: "lightgray" }
+class CircleDialog {
+    constructor(
+        public choices = moduleChoices,
+        public element: HTMLElement = el("circle-dialog-img")
+    ) {
+        let a = el("area-1") as HTMLAreaElement
+        function scaleIMGMap(newPercent, imgmapAreas: HTMLAreaElement[]) {
+            let scalar = newPercent
+            imgmapAreas.forEach((areaElement) => {
+                let coords = areaElement.coords.split(",")
+                let newCoords: string[] = []
+                coords.forEach(coord => {
+                    newCoords.push(((Math.round(Number(coord) * scalar) ).toString()))
+                    console.log(newCoords)
+                })
+                areaElement.coords = newCoords.join(",")
+                console.log(areaElement.coords)
+                // return newCoords
+            })
+            let e = element as HTMLImageElement
+            e.width = scalar * e.width
+            // e.height = scalar * e.height
+            console.log(e)
+            // element.style.width = scalar * Number(element.style.width.replace("px", "")) + "px"
+            // element.style.height = scalar * Number(element.style.height.replace("px", "")) + "px"
+        }
+        let areas = [
+            el("area-1"),
+            el("area-2"),
+            el("area-3"),
+            el("area-4"),
+            el("area-5"),
+            el("area-6")
+        ] as HTMLAreaElement[]
+        console.log(this.element)
+        let newCoords = scaleIMGMap(0.2, areas)
+        // this.element.style.width = "100px"
+        // this.element.style.height = "100px"
+        // Object.assign(el("circle-dialog-map").style, { backgroundColor: "orange", width: "100px", height: "100px" })
+        // Object.assign(this.element.style, {width: "2rem", height: "2rem", borderRadius: "50%", backgroundColor: themeColors.circleDialogColor})
+        // let sectionArcLength = 360 / choices.length
+
+    }
+}
+
+new CircleDialog()
+
 let modules: GenericModule[] = []
-let a = new ImageModule({ x: 100, y: 300 }, catimg)
-a.show()
-a.moveTo({ x: 30, y: 20 })
-// a.moveTo({ x: -300, y: -100 })
-a.element.onclick = () => {a.moveTo({x: 3, y: 200})}
-a.changeImageSize({x: 40, y: 50})
+// let a = new ImageModule({ x: 100, y: 300 }, catimg)
+// a.show()
+// a.moveTo({ x: 30, y: 20 })
+// // a.moveTo({ x: -300, y: -100 })
+// a.changeImageSize({ x: 40, y: 50 })
+// a.element.onclick = () => { a.moveTo({ x: 3, y: 200 }) }
