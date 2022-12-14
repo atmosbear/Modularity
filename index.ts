@@ -7,10 +7,10 @@ let catimg = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb
 type XY = { x: number, y: number }
 
 
-function GlobalState(activeTool: string,) {
-    return { activeTool }
+function GlobalState(activeTool: string) {
+    return { activeTool, circleDialogCenterLocation: { x: 0, y: 0 } }
 }
-let gState = GlobalState("Image")
+let globalState = GlobalState("Image")
 
 class GenericModule {
     constructor(
@@ -26,9 +26,13 @@ class GenericModule {
         Object.assign(element.style, { top: position.y + "px", left: position.x + "px", position: "absolute" })
     }
 
+    getSize(): XY { //@ts-ignore-error
+        return { x: this.element.width, y: this.element.height }
+    }
+
     moveTo(newPos: XY) {
-        this.position.y = newPos.x
-        this.position.x = newPos.y
+        this.position.y = newPos.y
+        this.position.x = newPos.x
         this.element.style.top = this.position.y + "px"
         this.element.style.left = this.position.x + "px"
     }
@@ -64,13 +68,12 @@ class ImageModule extends GenericModule {
     }
 }
 
-let moduleChoices = ["Image Module", "Text Module", "Generic/Container Module"]
-let themeColors = { circleDialogColor: "lightgray" }
-class CircleDialog {
+class CircleDialog extends GenericModule {
     constructor(
         public choices = moduleChoices,
         public element: HTMLElement = el("circle-dialog-img")
     ) {
+        super(globalState.circleDialogCenterLocation, element)
         let a = el("area-1") as HTMLAreaElement
         function scaleIMGMap(newPercent, imgmapAreas: HTMLAreaElement[]) {
             let scalar = newPercent
@@ -78,7 +81,7 @@ class CircleDialog {
                 let coords = areaElement.coords.split(",")
                 let newCoords: string[] = []
                 coords.forEach(coord => {
-                    newCoords.push(((Math.round(Number(coord) * scalar) ).toString()))
+                    newCoords.push(((Math.round(Number(coord) * scalar)).toString()))
                 })
                 areaElement.coords = newCoords.join(",")
                 // return newCoords
@@ -97,18 +100,54 @@ class CircleDialog {
             el("area-5"),
             el("area-6")
         ] as HTMLAreaElement[]
-        areas.forEach(area => {area.onclick = (e) => {e.preventDefault()}})
+        function areaClicked(et: EventTarget, circleDialog: CircleDialog) {
+            let target = et as HTMLElement
+            if (target.id === "area-1") {
+                let im = new ImageModule(globalState.circleDialogCenterLocation, "empty")
+                im.show()
+                circleDialog.hide()
+            } if (target.id === "area-2") {
+
+            } if (target.id === "area-3") {
+
+            } if (target.id === "area-4") {
+
+            } if (target.id === "area-5") {
+
+            } if (target.id === "area-6") {
+                let im = new ImageModule(globalState.circleDialogCenterLocation, "empty")
+                im.show()
+                circleDialog.hide()
+            }
+        }
+        areas.forEach(area => {
+            area.onclick = (e) => {
+                e.preventDefault();
+                areaClicked(e.target!, this)
+            }
+        })
         let newCoords = scaleIMGMap(0.2, areas)
         // Object.assign(el("circle-dialog-map").style, { backgroundColor: "orange", width: "100px", height: "100px" })
         // Object.assign(this.element.style, {width: "2rem", height: "2rem", borderRadius: "50%", backgroundColor: themeColors.circleDialogColor})
         // let sectionArcLength = 360 / choices.length
-
     }
 }
 
-new CircleDialog()
+window.onmousedown = (e: MouseEvent) => {
+    console.log(e.button);
+    if (e.button === 1) { // middle mouse button
+        e.preventDefault();
+        cDialog.show();
+        cDialog.moveTo({ x: e.clientX - cDialog.getSize().x / 2, y: e.clientY - cDialog.getSize().y / 2 })
+    }
+}
 
 let modules: GenericModule[] = []
+let moduleChoices = ["Image Module", "Text Module", "Generic/Container Module"]
+let themeColors = { circleDialogColor: "lightgray" }
+let cDialog = new CircleDialog()
+cDialog.hide()
+
 // let a = new ImageModule({ x: 100, y: 300 }, catimg)
 // a.show()
 // a.moveTo({ x: 30, y: 20 })
