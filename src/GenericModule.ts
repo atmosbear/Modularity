@@ -75,7 +75,7 @@ export class CircleDialog extends GenericModule {
     ) {
         super(globalState.circleDialogCenterLocation, element);
         let a = el("area-1") as HTMLAreaElement;
-        function scaleIMGMap(newPercent, imgmapAreas: HTMLAreaElement[]) {
+        function scaleIMGMap(newPercent: number, imgmapAreas: HTMLAreaElement[]) {
             let scalar = newPercent;
             imgmapAreas.forEach((areaElement) => {
                 let coords = areaElement.coords.split(",");
