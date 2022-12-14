@@ -1,19 +1,8 @@
 # Modularity
-A modular planning app that can do many things within enclosed boxes on the main graph screen. Can be used to take notes, mind map, etc!
+A modular planning app written in TS that can do many things within enclosed boxes on the main graph screen. Can be used to take notes, mind map, etc!
 
-Some planned features:
-  - click just once to quickly create boxes (modules?) on the main screen
-  - ability to have multiple things or just one thing within a single module
-  - fade bottom of larger modules; have rounded corners with white
-  - allow user to copy modules as templates
-  - some module types:
-    - generic (done!)
-    - text (WIP)
-    - image (WIP)
-      - with resize capability (WIP)
-    - video?
-    - drawing?
-    - mindmap?
-    - graph?
+I'm actually very proud of myself with this project because I really like the implementation of the circular dialog. And, I think I designed this app particularly well - it was a great chance to use OOP. I tend to favor composition over inheritance, but here inheritance won.
+
+For completed and planned features, see the projects section! :)
 
 Icons from the lovely remixicon.com/.
