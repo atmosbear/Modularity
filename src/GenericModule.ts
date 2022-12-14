@@ -1,5 +1,5 @@
 import {modules, globalState, moduleChoices} from "./Globals"
-import { el } from "./helpers";
+import { el } from "../helpers";
 
 export class GenericModule {
     constructor(
