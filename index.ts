@@ -79,16 +79,13 @@ class CircleDialog {
                 let newCoords: string[] = []
                 coords.forEach(coord => {
                     newCoords.push(((Math.round(Number(coord) * scalar) ).toString()))
-                    console.log(newCoords)
                 })
                 areaElement.coords = newCoords.join(",")
-                console.log(areaElement.coords)
                 // return newCoords
             })
             let e = element as HTMLImageElement
             e.width = scalar * e.width
             // e.height = scalar * e.height
-            console.log(e)
             // element.style.width = scalar * Number(element.style.width.replace("px", "")) + "px"
             // element.style.height = scalar * Number(element.style.height.replace("px", "")) + "px"
         }
@@ -100,10 +97,8 @@ class CircleDialog {
             el("area-5"),
             el("area-6")
         ] as HTMLAreaElement[]
-        console.log(this.element)
+        areas.forEach(area => {area.onclick = (e) => {e.preventDefault()}})
         let newCoords = scaleIMGMap(0.2, areas)
-        // this.element.style.width = "100px"
-        // this.element.style.height = "100px"
         // Object.assign(el("circle-dialog-map").style, { backgroundColor: "orange", width: "100px", height: "100px" })
         // Object.assign(this.element.style, {width: "2rem", height: "2rem", borderRadius: "50%", backgroundColor: themeColors.circleDialogColor})
         // let sectionArcLength = 360 / choices.length
