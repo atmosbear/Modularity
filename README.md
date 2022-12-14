@@ -15,3 +15,5 @@ Some planned features:
     - drawing?
     - mindmap?
     - graph?
+
+Icons from the lovely remixicon.com/.

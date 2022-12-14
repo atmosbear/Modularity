@@ -2,15 +2,12 @@ function el(id: string): HTMLElement {
     return document.getElementById(id)!
 }
 
-let catimg = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=8"
-
 type XY = { x: number, y: number }
 
 
 function GlobalState(activeTool: string) {
     return { activeTool, circleDialogCenterLocation: { x: 0, y: 0 } }
 }
-let globalState = GlobalState("Image")
 
 class GenericModule {
     constructor(
@@ -45,6 +42,15 @@ class GenericModule {
     hide() {
         document.body.removeChild(this.element)
         this.onscreen = false
+    }
+}
+
+class TextModule extends GenericModule {
+    constructor(
+        public position: XY,
+        public element: HTMLDivElement = document.createElement("div"),
+    ) {
+        super(position, element)
     }
 }
 
@@ -84,13 +90,9 @@ class CircleDialog extends GenericModule {
                     newCoords.push(((Math.round(Number(coord) * scalar)).toString()))
                 })
                 areaElement.coords = newCoords.join(",")
-                // return newCoords
             })
             let e = element as HTMLImageElement
             e.width = scalar * e.width
-            // e.height = scalar * e.height
-            // element.style.width = scalar * Number(element.style.width.replace("px", "")) + "px"
-            // element.style.height = scalar * Number(element.style.height.replace("px", "")) + "px"
         }
         let areas = [
             el("area-1"),
@@ -115,8 +117,9 @@ class CircleDialog extends GenericModule {
             } if (target.id === "area-5") {
 
             } if (target.id === "area-6") {
-                let im = new ImageModule(globalState.circleDialogCenterLocation, "empty")
-                im.show()
+                let txt = new TextModule(globalState.circleDialogCenterLocation)
+                txt.show()
+                txt.element.innerText = "Unedited text module"
                 circleDialog.hide()
             }
         }
@@ -127,30 +130,32 @@ class CircleDialog extends GenericModule {
             }
         })
         let newCoords = scaleIMGMap(0.2, areas)
-        // Object.assign(el("circle-dialog-map").style, { backgroundColor: "orange", width: "100px", height: "100px" })
-        // Object.assign(this.element.style, {width: "2rem", height: "2rem", borderRadius: "50%", backgroundColor: themeColors.circleDialogColor})
-        // let sectionArcLength = 360 / choices.length
     }
 }
 
 window.onmousedown = (e: MouseEvent) => {
     console.log(e.button);
-    if (e.button === 1) { // middle mouse button
+    if (e.button === 1) { // middle mouse button on linux... will need to adjust for other OSs
         e.preventDefault();
         cDialog.show();
-        cDialog.moveTo({ x: e.clientX - cDialog.getSize().x / 2, y: e.clientY - cDialog.getSize().y / 2 })
+        let xy = {x: e.clientX - cDialog.getSize().x / 2, y: e.clientY - cDialog.getSize().y / 2}
+        cDialog.moveTo(xy)
+        globalState.circleDialogCenterLocation = {x: e.clientX, y: e.clientY}
     }
 }
 
+
+let catimg = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=8"
+let globalState = GlobalState("Image")
 let modules: GenericModule[] = []
 let moduleChoices = ["Image Module", "Text Module", "Generic/Container Module"]
 let themeColors = { circleDialogColor: "lightgray" }
 let cDialog = new CircleDialog()
 cDialog.hide()
 
-// let a = new ImageModule({ x: 100, y: 300 }, catimg)
-// a.show()
-// a.moveTo({ x: 30, y: 20 })
-// // a.moveTo({ x: -300, y: -100 })
-// a.changeImageSize({ x: 40, y: 50 })
-// a.element.onclick = () => { a.moveTo({ x: 3, y: 200 }) }
+let a = new ImageModule({ x: 100, y: 300 }, catimg)
+a.show()
+a.moveTo({ x: 30, y: 20 })
+// a.moveTo({ x: -300, y: -100 })
+a.changeImageSize({ x: 40, y: 50 })
+a.element.onclick = () => { a.moveTo({ x: 3, y: 200 }) }
