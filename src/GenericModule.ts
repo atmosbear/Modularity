@@ -6,13 +6,31 @@ export class GenericModule {
         public position: XY,
         public element: HTMLElement,
         public movable: boolean = true,
+        public shouldHaveContainer: boolean = false,
+        public containerElement?: GenericModule,
         public onscreen: boolean = false,
         public childrenModules: GenericModule[] = [],
     ) {
+        if (!containerElement && shouldHaveContainer) {
+            let containerPosX = position.x - 10
+            let containerPosY = position.y - 10
+            let containerPos = { x: containerPosX, y: containerPosY }
+            this.containerElement = new GenericModule(containerPos, document.createElement("div"), true, false, undefined, false, [])
+        }
         GenericModule.makeMovable(position, element); // there's a hacky error here, but it still works. added to issues on GitHub
         modules.push(this);
-        if (movable) {
-            this.element.onmousemove = (e) => {
+        if (shouldHaveContainer) {
+            document.body.append(this.containerElement!.element)
+            this.containerElement!.element.onmousemove = (e) => {
+                if (globalState.mouseIsDown) {
+                    this.moveTo({ x: e.clientX - this.getSize().x / 2, y: e.clientY - this.getSize().y / 2 });
+                }
+            }
+        }
+        if (movable && !shouldHaveContainer && containerElement) {
+            console.log(this.element)
+            this.moveTo({x: 30, y: 30})
+            this.containerElement!.element.onmousemove = (e) => {
                 if (globalState.mouseIsDown) {
                     this.moveTo({ x: e.clientX - this.getSize().x / 2, y: e.clientY - this.getSize().y / 2 });
                 }
@@ -34,10 +52,21 @@ export class GenericModule {
         this.element.style.left = this.position.x + "px";
     }
 
+    updateContainerSize() {
+        if (this.shouldHaveContainer) {
+            Object.assign(this.containerElement!.element.style, {
+                width: this.element.offsetWidth + 20 + "px",
+                height: this.element.offsetHeight + 20 + "px",
+                backgroundColor: "darkblue"
+            });
+        }
+    }
+
     show() {
         // this.element.style.display = this.usualDisplayState
         document.body.append(this.element);
         this.onscreen = true;
+        this.updateContainerSize()
     }
 
     hide() {
@@ -52,10 +81,14 @@ export class TextModule extends GenericModule {
         public position: XY,
         public element: HTMLTextAreaElement = document.createElement("textarea")
     ) {
-        super(position, element);
+        super(position, element, true, true);
         Object.assign(this.element.style, {
             backgroundColor: themeColors.textModule.BGColor,
-            color: themeColors.textModule.fontColor
+            color: themeColors.textModule.fontColor,
+            border: "none",
+            fontSize: "2rem",
+            width: "fit-content",
+            fontFamily: "Manjari Thin, sans-serif"
         })
     }
 }
@@ -66,10 +99,11 @@ export class ImageModule extends GenericModule {
         public element: HTMLImageElement = document.createElement("img"),
         public size?: XY
     ) {
-        super(position, element);
+        super(position, element, false, true);
         this.element.src = imgsrc;
         this.size = { x: this.element.width, y: this.element.height };
         console.log(this.element.width);
+        this.updateContainerSize()
     }
 
     changeImageSize(newSize: XY) {
@@ -151,7 +185,7 @@ class TableCellModule extends GenericModule {
 
 export class TableModule extends GenericModule {
     constructor(position: XY, public rowCols: XY = { x: 2, y: 5 }) {
-        super(position, document.createElement("div"))
+        super(position, document.createElement("div"), false, true)
         let cellWidth = 150
         let cellHeight = 30
         for (let row = 0; row < rowCols.x; row++) {
@@ -162,6 +196,8 @@ export class TableModule extends GenericModule {
                 cell.show()
             }
         }
-        this.element.style.backgroundColor = "red"
+        // this.element.style.backgroundColor = "red"
+        Object.assign(this.element.style, {width: cellWidth * rowCols.x + 10 + "px", height: cellHeight * rowCols.y + 10 + "px"})
+        this.updateContainerSize()
     }
 }
