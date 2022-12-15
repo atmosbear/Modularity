@@ -1,4 +1,4 @@
-import {modules, globalState, moduleChoices} from "./Globals"
+import { modules, globalState, moduleChoices } from "./Globals"
 import { el } from "../helpers";
 
 export class GenericModule {
@@ -6,15 +6,16 @@ export class GenericModule {
         public position: XY,
         public element: HTMLElement,
         public onscreen: boolean = false,
-        public childrenModules: GenericModule[] = []
+        public childrenModules: GenericModule[] = [],
+        private usualDisplayState?
     ) {
-        GenericModule.makeMovable(position, element);
-        modules.push(this);
-        this.element.onmousemove = (e) => {
-            if (globalState.mouseIsDown) {
-                this.moveTo({ x: e.clientX - this.getSize().x / 2, y: e.clientY - this.getSize().y / 2 });
-            }
-        };
+            GenericModule.makeMovable(position, element); // there's a hacky error here, but it still works. added to issues on GitHub
+            modules.push(this);
+            this.element.onmousemove = (e) => {
+                if (globalState.mouseIsDown) {
+                    this.moveTo({ x: e.clientX - this.getSize().x / 2, y: e.clientY - this.getSize().y / 2 });
+                }
+            };
     }
     static makeMovable(position: XY, element: HTMLElement) {
         Object.assign(element.style, { top: position.y + "px", left: position.x + "px", position: "absolute" });
@@ -32,11 +33,14 @@ export class GenericModule {
     }
 
     show() {
+        // this.element.style.display = this.usualDisplayState
         document.body.append(this.element);
         this.onscreen = true;
     }
 
     hide() {
+        // this.usualDisplayState = this.element.style.display
+        // this.element.style.display = "none"
         document.body.removeChild(this.element);
         this.onscreen = false;
     }
@@ -103,6 +107,9 @@ export class CircleDialog extends GenericModule {
                 im.show();
                 circleDialog.hide();
             } if (target.id === "area-2") {
+                let table = new TableModule(globalState.circleDialogCenterLocation);
+                table.show();
+                circleDialog.hide();
             } if (target.id === "area-3") {
             } if (target.id === "area-4") {
             } if (target.id === "area-5") {
@@ -120,5 +127,22 @@ export class CircleDialog extends GenericModule {
             };
         });
         let newCoords = scaleIMGMap(0.2, areas);
+    }
+}
+
+class TableCellModule extends GenericModule {
+    constructor(position: XY, public coords: XY) {
+        super(position, document.createElement("textinput"))
+    }
+}
+
+export class TableModule extends GenericModule {
+    constructor(position: XY, public rowCols: XY = { x: 2, y: 1 }) {
+        super(position, document.createElement("div"))
+        for (let row = 0; row < rowCols.x; row++) {
+            for (let col = 0; col < rowCols.y; col++) {
+                this.childrenModules.push(new TableCellModule(position, { x: row, y: col }))
+            }
+        }
     }
 }
