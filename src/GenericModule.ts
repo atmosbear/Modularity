@@ -50,9 +50,13 @@ export class GenericModule {
 export class TextModule extends GenericModule {
     constructor(
         public position: XY,
-        public element: HTMLDivElement = document.createElement("div")
+        public element: HTMLTextAreaElement = document.createElement("textarea")
     ) {
         super(position, element);
+        Object.assign(this.element.style, {
+            backgroundColor: themeColors.textModule.BGColor,
+            color: themeColors.textModule.fontColor
+        })
     }
 }
 export class ImageModule extends GenericModule {
@@ -128,7 +132,7 @@ export class CircleDialog extends GenericModule {
                 areaClicked(e.target!, this);
             };
         });
-        let newCoords = scaleIMGMap(0.2, areas);
+        let newCoords = scaleIMGMap(0.3, areas);
     }
 }
 
