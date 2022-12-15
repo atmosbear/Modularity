@@ -1,20 +1,23 @@
-import { modules, globalState, moduleChoices } from "./Globals"
+import { modules, globalState, moduleChoices, themeColors } from "./Globals"
 import { el } from "../helpers";
 
 export class GenericModule {
     constructor(
         public position: XY,
         public element: HTMLElement,
+        public movable: boolean = true,
         public onscreen: boolean = false,
         public childrenModules: GenericModule[] = [],
     ) {
-            GenericModule.makeMovable(position, element); // there's a hacky error here, but it still works. added to issues on GitHub
-            modules.push(this);
+        GenericModule.makeMovable(position, element); // there's a hacky error here, but it still works. added to issues on GitHub
+        modules.push(this);
+        if (movable) {
             this.element.onmousemove = (e) => {
                 if (globalState.mouseIsDown) {
                     this.moveTo({ x: e.clientX - this.getSize().x / 2, y: e.clientY - this.getSize().y / 2 });
                 }
             };
+        }
     }
     static makeMovable(position: XY, element: HTMLElement) {
         Object.assign(element.style, { top: position.y + "px", left: position.x + "px", position: "absolute" });
@@ -130,18 +133,31 @@ export class CircleDialog extends GenericModule {
 }
 
 class TableCellModule extends GenericModule {
-    constructor(position: XY, public coords: XY) {
-        super(position, document.createElement("textinput"))
+    constructor(position: XY, public coords: XY, cellWH: XY) {
+        super(position, document.createElement("input"), false)
+        this.element.inputMode = "text"
+        Object.assign(this.element.style, {
+            backgroundColor: (coords.y % 2 === 0 ? themeColors.tableBGColor.light : themeColors.tableBGColor.dark),
+            width: cellWH.x + "px",
+            height: cellWH.y + "px"
+        })
+        this.element.ondblclick = () => { }
     }
 }
 
 export class TableModule extends GenericModule {
-    constructor(position: XY, public rowCols: XY = { x: 2, y: 1 }) {
+    constructor(position: XY, public rowCols: XY = { x: 2, y: 5 }) {
         super(position, document.createElement("div"))
+        let cellWidth = 150
+        let cellHeight = 30
         for (let row = 0; row < rowCols.x; row++) {
             for (let col = 0; col < rowCols.y; col++) {
-                this.childrenModules.push(new TableCellModule(position, { x: row, y: col }))
+                let cell = new TableCellModule({ x: position.x + (cellWidth + 1) * row, y: position.y + cellHeight * col }, { x: row, y: col }, { x: cellWidth, y: cellHeight })
+                this.childrenModules.push(cell)
+                this.element.appendChild(cell.element)
+                cell.show()
             }
         }
+        this.element.style.backgroundColor = "red"
     }
 }
