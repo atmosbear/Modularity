@@ -7,7 +7,6 @@ export class GenericModule {
         public element: HTMLElement,
         public onscreen: boolean = false,
         public childrenModules: GenericModule[] = [],
-        private usualDisplayState?
     ) {
             GenericModule.makeMovable(position, element); // there's a hacky error here, but it still works. added to issues on GitHub
             modules.push(this);
